@@ -1,3 +1,5 @@
+module Bip where
+
 bip39 :: [String]
 bip39 =
   [

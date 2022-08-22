@@ -1,7 +1,9 @@
 
 import System.IO
+import System.Random
+import System.Random.Shuffle
 import Control.Monad
-
+import Bip
 
 
 --TYPES
@@ -47,8 +49,8 @@ displayShuffle = undefined
 --Check for correct number of words
 
 --EXPORTING
-
+mkStdGen
 
 main = do  
-    contents <- readFile "bip39_english.txt"
-    print . words $ contents
+    ls <- loadBIP "bip39_english.txt"
+    print . words $ ps
