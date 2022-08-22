@@ -4,18 +4,19 @@ import System.Random
 import System.Random.Shuffle
 import Control.Monad
 import Bip
+import Data.Char (ord)
+import Data.Map.Internal.Debug (ordered)
 
 
 --TYPES
-data BipWord = BipWord String
+data BipWord     = BipWord String deriving (Eq, Show)
+data BipList     = BipList Int [BipWord] deriving (Eq, Show)
+data BipOrder    = BipOrder Int [Int] deriving (Eq, Show)
 
---Build a BipList from a file
-fileToBipList :: IO () -> [BipWord]
-fileToBipList = undefined
 
 --Take an int, return a shuffled list of 2048 BIP39 keywords
-shuffleBIP :: [Int] -> [Int]
-shuffleBIP = undefined
+shuffleBIP :: Int -> BipOrder -> BipOrder
+shuffleBIP r (BipOrder n idxs) = BipOrder n $ shuffle' idxs n (mkStdGen r)
 
 loadBIP :: FilePath -> IO [String]
 loadBIP path = do
@@ -49,8 +50,12 @@ displayShuffle = undefined
 --Check for correct number of words
 
 --EXPORTING
-mkStdGen
 
-main = do  
-    ls <- loadBIP "bip39_english.txt"
-    print . words $ ps
+main = do
+    let order = BipOrder 2048 [1..2048]
+    print order
+
+    -- replace with get n
+    let n = 0
+
+    print $ shuffleBIP n order
