@@ -4,12 +4,11 @@ import System.IO
 import System.Random
 import System.Random.Shuffle
 import Control.Monad
-import Bip
-
-
 import Brick
 import Brick.Widgets.Table
 import Brick.Widgets.Center (center)
+import Bip
+
 
 
 --TYPES
@@ -37,26 +36,38 @@ listShuffleBIP :: [Int] -> BipList -> BipList
 listShuffleBIP []     bl = bl
 listShuffleBIP (r:rs) bl = listShuffleBIP rs $ shuffleBIP r bl
 
---TUI
-
 --2x2 Matrix of BipWords and show on screen
 twoByTwoBIP :: BipList -> [[(Int, String)]]
 twoByTwoBIP (BipList []) = [[(0,"")]]
 twoByTwoBIP (BipList bl) = (take 46 bl) : (twoByTwoBIP $ (BipList (drop 46 bl)))
 
+
+--RECOVER SEED PHRASE
+
+--verify correct number of Bools in mask
+validatePattern :: Int -> [[Bool]] -> Bool
+validatePattern n bools = undefined
+
+--take a list of BIP words (eg ["absurd", "accident"]) and a 46x46 array of Bools (which )
+recover :: [String] -> [[Bool]] -> [String]
+recover (w:ws) bools = undefined
+
+
+--TUI
+
 --SELECTING AND TOGGLING CELLS FOR INCLUSION
 
 --Prompt for 12, 15, 24 word seed phrase
-
 --Check for correct number of words
-
---EXPORTING
 
 fakeTableData :: [[Widget ()]]
 fakeTableData = [ [txt "a", txt "b", txt "c"]
                 , [txt "d", txt "e", txt "f"]
                 , [txt "g", txt "h", txt "i"]
                 ]
+
+fakeTableData' :: [[Widget ()]]
+fakeTableData' = map txt twoByTwoBIP bip39
 
 t :: Table ()
 t =
