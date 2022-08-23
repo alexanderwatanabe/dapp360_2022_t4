@@ -1,13 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import System.IO
-import System.Random
-import System.Random.Shuffle
-import Control.Monad
-import Brick
+import System.IO ()
+import System.Random ( mkStdGen )
+import System.Random.Shuffle ( shuffle' )
+import Control.Monad ()
+import Brick ( simpleMain, txt, Widget )
 import Brick.Widgets.Table
+    ( renderTable, surroundingBorder, table, Table )
 import Brick.Widgets.Center (center)
-import Bip
+import Bip ( bip39words )
+import qualified Data.Text as Text
 
 
 
@@ -17,6 +19,15 @@ newtype BipList  = BipList [(Int, String)] deriving (Eq, Show)
 --DATA
 bip39 :: BipList
 bip39 = BipList $ zip [1..2048] bip39words
+
+selectedStats :: [[Bool]]
+selectedStats = take 46 $ repeat . take 46 $ repeat False
+
+textifyNestedList :: Show a => [[a]] -> [[Text.Text]]
+textifyNestedList a = Prelude.map (Prelude.map (Text.pack . (\x -> if x == "False" then "0" else "1") . show) ) a
+
+widgetizeNestedList :: [[Text.Text]] -> [[Widget ()]]
+widgetizeNestedList a = Prelude.map (Prelude.map txt ) a
 
 --For future, load custom BIP list
 loadBIP :: FilePath -> IO [String]
@@ -66,13 +77,13 @@ fakeTableData = [ [txt "a", txt "b", txt "c"]
                 , [txt "g", txt "h", txt "i"]
                 ]
 
-fakeTableData' :: [[Widget ()]]
-fakeTableData' = map txt twoByTwoBIP bip39
+--fakeTableData' :: [[Widget ()]]
+--fakeTableData' = map txt twoByTwoBIP bip39
 
 t :: Table ()
 t =
     surroundingBorder True $
-    table fakeTableData
+    table . widgetizeNestedList $ textifyNestedList selectedStats
 
 ui :: Widget ()
 ui = center $ renderTable t
