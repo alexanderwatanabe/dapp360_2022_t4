@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 import System.IO
 import System.Random
 import System.Random.Shuffle
@@ -5,23 +7,17 @@ import Control.Monad
 import Bip
 
 
+import Brick
+import Brick.Widgets.Table
+import Brick.Widgets.Center (center)
+
+
 --TYPES
-newtype BipWord  = BipWord String deriving (Eq, Show)
-newtype BipList  = BipList [BipWord] deriving (Eq, Show)
-newtype BipOrder = BipOrder [Int] deriving (Eq, Show)
+newtype BipList  = BipList [(Int, String)] deriving (Eq, Show)
 
 --DATA
-order :: BipOrder
-order = BipOrder [1..2048]
-
---Take an Int, return a shuffled list of 2048 BIP39 keywords
-shuffleBIP :: Int -> BipOrder -> BipOrder
-shuffleBIP r (BipOrder idxs) = BipOrder $ shuffle' idxs 2048 (mkStdGen r)
-
---Take a [Int], apply them in order as seeds for shuffling a BipOrder
-listShuffleBIP :: [Int] -> BipOrder -> BipOrder
-listShuffleBIP []     bo = bo
-listShuffleBIP (r:rs) bo = listShuffleBIP rs $ shuffleBIP r bo
+bip39 :: BipList
+bip39 = BipList $ zip [1..2048] bip39words
 
 --For future, load custom BIP list
 loadBIP :: FilePath -> IO [String]
@@ -30,24 +26,23 @@ loadBIP path = do
     return (lines contents)
 
 
+--RNG
+
+--Take an Int, return a shuffled list of 2048 BIP39 keywords
+shuffleBIP :: Int -> BipList -> BipList
+shuffleBIP r (BipList bl) =  BipList $ shuffle' bl 2048 (mkStdGen r)
+
+--Take a [Int], apply them in order as seeds for shuffling a BipOrder
+listShuffleBIP :: [Int] -> BipList -> BipList
+listShuffleBIP []     bl = bl
+listShuffleBIP (r:rs) bl = listShuffleBIP rs $ shuffleBIP r bl
+
 --TUI
 
---take a BipWord, BipList and BipOrder, return the Int of that Word
-wordToInt :: BipWord -> BipList -> BipOrder -> Int
-wordToInt = undefined
-
---take an Int, BipList and BipOrder, return the appropriate BipWord
-intToWord :: Int -> BipList -> BipOrder -> BipWord
-intToWord = undefined
-
---Take a BIP list and a shuffle and turn to a 2x2 matrix
-buildShuffle :: BipList -> BipOrder -> [[BipWord]]
-buildShuffle = undefined
-
 --2x2 Matrix of BipWords and show on screen
-displayShuffle :: [[BipWord]] -> IO ()
-displayShuffle = undefined
-
+twoByTwoBIP :: BipList -> [[(Int, String)]]
+twoByTwoBIP (BipList []) = [[(0,"")]]
+twoByTwoBIP (BipList bl) = (take 46 bl) : (twoByTwoBIP $ (BipList (drop 46 bl)))
 
 --SELECTING AND TOGGLING CELLS FOR INCLUSION
 
@@ -57,11 +52,19 @@ displayShuffle = undefined
 
 --EXPORTING
 
+fakeTableData :: [[Widget ()]]
+fakeTableData = [ [txt "a", txt "b", txt "c"]
+                , [txt "d", txt "e", txt "f"]
+                , [txt "g", txt "h", txt "i"]
+                ]
+
+t :: Table ()
+t =
+    surroundingBorder True $
+    table fakeTableData
+
+ui :: Widget ()
+ui = center $ renderTable t
+
 main = do
-    let order = BipOrder [1..2048]
-    print order
-
-    -- replace with get n
-    let n = 0
-
-    print $ shuffleBIP n order
+    simpleMain ui

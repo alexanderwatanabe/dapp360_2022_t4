@@ -1,7 +1,7 @@
 module Bip where
 
-bip39 :: [String]
-bip39 =
+bip39words :: [String]
+bip39words =
   [
     "abandon"
     , "ability"
