@@ -1,4 +1,3 @@
-
 import System.IO
 import System.Random
 import System.Random.Shuffle
@@ -11,11 +10,20 @@ newtype BipWord  = BipWord String deriving (Eq, Show)
 newtype BipList  = BipList [BipWord] deriving (Eq, Show)
 newtype BipOrder = BipOrder [Int] deriving (Eq, Show)
 
+--DATA
+order :: BipOrder
+order = BipOrder [1..2048]
 
---Take an int, return a shuffled list of 2048 BIP39 keywords
+--Take an Int, return a shuffled list of 2048 BIP39 keywords
 shuffleBIP :: Int -> BipOrder -> BipOrder
 shuffleBIP r (BipOrder idxs) = BipOrder $ shuffle' idxs 2048 (mkStdGen r)
 
+--Take a [Int], apply them in order as seeds for shuffling a BipOrder
+listShuffleBIP :: [Int] -> BipOrder -> BipOrder
+listShuffleBIP []     bo = bo
+listShuffleBIP (r:rs) bo = listShuffleBIP rs $ shuffleBIP r bo
+
+--For future, load custom BIP list
 loadBIP :: FilePath -> IO [String]
 loadBIP path = do
     contents <- readFile path
