@@ -1,0 +1,24 @@
+bip39
+
+l0 = shuffleBIP 0 bip39
+
+l1 = shuffleBIP 1 l0
+
+l2 = shuffleBIP 2 l1
+
+l012 = listShuffleBIP [0,1,2] bip39
+
+l012 == l2
+
+twoByTwoBIP bip39
+
+
+pattern1
+
+getIndices pattern1 $ twoByTwoBIP bip39
+getIndices pattern2 $ twoByTwoBIP bip39
+getIndices pattern3 $ twoByTwoBIP bip39
+
+indicesToWords . getIndices pattern1 $ twoByTwoBIP bip39
+indicesToWords . getIndices pattern2 $ twoByTwoBIP bip39
+indicesToWords . getIndices pattern3 $ twoByTwoBIP bip39
