@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+module Main where
+
 import System.IO ()
 import System.Random ( mkStdGen )
 import System.Random.Shuffle ( shuffle' )
@@ -16,24 +18,11 @@ import qualified Data.Text as T
 --TYPES
 newtype BipList  = BipList [(Int, String)] deriving (Eq, Show)
 
+
 --DATA
 bip39 :: BipList
-bip39 = BipList $ zip [1..2048] bip39words
+bip39 = BipList $ zip [0..2047] bip39words
 
-
---Take a list of Ints
-twoDify :: [Int] -> [[Int]]
-twoDify []     = []
-twoDify (x:xs) = map (+ x) [0..45] : twoDify xs
-
-        
-
-
-textifyNestedList :: Show a => [[a]] -> [[T.Text]]
-textifyNestedList = map ( map (T.pack . show) )
-
-widgetizeNestedList :: [[T.Text]] -> [[Widget ()]]
-widgetizeNestedList = map ( map txt )
 
 --For future, load custom BIP list
 loadBIP :: FilePath -> IO [String]
@@ -54,7 +43,7 @@ listShuffleBIP rs bl = foldl (flip shuffleBIP) bl rs
 
 --2x2 Matrix of BipWords and show on screen
 twoByTwoBIP :: BipList -> [[(Int, String)]]
-twoByTwoBIP (BipList []) = [[(0,"")]]
+twoByTwoBIP (BipList []) = []
 twoByTwoBIP (BipList bl) = take 46 bl : (twoByTwoBIP $ BipList (drop 46 bl))
 
 
@@ -71,6 +60,26 @@ recover (w:ws) bools = undefined
 
 --TUI
 
+textifyNestedList :: Show a => [[a]] -> [[T.Text]]
+textifyNestedList = map ( map (T.pack . show) )
+
+widgetizeNestedList :: [[T.Text]] -> [[Widget ()]]
+widgetizeNestedList = map ( map txt )
+
+--Take a list of Ints
+twoDify :: [Int] -> [[Int]]
+twoDify []     = []
+twoDify (x:xs) = map (+ x) [0..45] : twoDify xs
+
+--Take Locations, a 2D BIPList and return the ind
+getIndices :: [(Int, Int)] -> [[(Int, String)]] -> [Int]
+getIndices []             m = []
+getIndices ((x,y) : xys ) m = (fst $ (m !! y) !! x) : getIndices xys m
+
+--getIndices pattern1 $ twoByTwoBIP bip39
+
+
+
 --SELECTING AND TOGGLING CELLS FOR INCLUSION
 
 --Prompt for 12, 15, 24 word seed phrase
@@ -78,8 +87,8 @@ recover (w:ws) bools = undefined
 
 t :: Table ()
 t =
-    surroundingBorder True $
-    table . widgetizeNestedList . textifyNestedList $ twoDify [1,46..2048]
+    surroundingBorder False $
+    table . widgetizeNestedList . textifyNestedList $ twoDify [0,46..2048]
 
 ui :: Widget ()
 ui = center $ renderTable t
