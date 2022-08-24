@@ -41,7 +41,7 @@ shuffleBIP r (BipList bl) =  BipList $ shuffle' bl 2048 (mkStdGen r)
 listShuffleBIP :: [Int] -> BipList -> BipList
 listShuffleBIP rs bl = foldl (flip shuffleBIP) bl rs
 
---2x2 Matrix of BipWords and show on screen
+--46x46 Matrix of BipWords and show on screen
 twoByTwoBIP :: BipList -> [[(Int, String)]]
 twoByTwoBIP (BipList []) = []
 twoByTwoBIP (BipList bl) = take 46 bl : (twoByTwoBIP $ BipList (drop 46 bl))
@@ -83,8 +83,10 @@ getIndices ((x,y) : xys ) m = (fst $ (m !! y) !! x) : getIndices xys m
 --SELECTING AND TOGGLING CELLS FOR INCLUSION
 
 --Prompt for 12, 15, 24 word seed phrase
---Check for correct number of words
 
+--Check that selected word patterns does not exceed chosen prompt.
+
+--output to 46x46 interface
 t :: Table ()
 t =
     surroundingBorder False $
