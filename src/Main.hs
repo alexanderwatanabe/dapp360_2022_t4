@@ -5,24 +5,17 @@ module Main where
 import System.IO ()
 import System.Random ( mkStdGen )
 import System.Random.Shuffle ( shuffle' )
-import Control.Monad ()
-import Brick ( simpleMain, txt, Widget )
-import Brick.Widgets.Table
-    ( renderTable, surroundingBorder, table, Table )
-import Brick.Widgets.Center (center)
+import Control.Monad (replicateM_)
 import Bip ( bip39words )
-import qualified Data.Text as T
-
+import System.Console.ANSI
 
 
 --TYPES
 newtype BipList  = BipList [(Int, String)] deriving (Eq, Show)
 
-
 --DATA
 bip39 :: BipList
 bip39 = BipList $ zip [0..2047] bip39words
-
 
 --For future, load custom BIP list
 loadBIP :: FilePath -> IO [String]
@@ -46,6 +39,10 @@ twoByTwoBIP :: BipList -> [[(Int, String)]]
 twoByTwoBIP (BipList []) = []
 twoByTwoBIP (BipList bl) = take 46 bl : (twoByTwoBIP $ BipList (drop 46 bl))
 
+twoByTwoWords :: [a] -> [[a]]
+twoByTwoWords [] = []
+twoByTwoWords ws = take 46 ws : (twoByTwoWords $ (drop 46 ws))
+
 
 --RECOVER SEED PHRASE
 
@@ -53,18 +50,31 @@ twoByTwoBIP (BipList bl) = take 46 bl : (twoByTwoBIP $ BipList (drop 46 bl))
 validatePattern :: Int -> [[Bool]] -> Bool
 validatePattern n bools = undefined
 
+--verify provided words are in BIP39 list
+validateWords :: [String] -> [Bool]
+validateWords = undefined
+
 --take a list of BIP words (eg ["absurd", "accident"]) and a 46x46 array of Bools (which )
 recover :: [String] -> [[Bool]] -> [String]
 recover (w:ws) bools = undefined
 
 
 --TUI
+initRow :: [Char]
+initRow = replicate 46 '_'
 
-textifyNestedList :: Show a => [[a]] -> [[T.Text]]
-textifyNestedList = map ( map (T.pack . show) )
+initGrid :: [[Char]]
+initGrid = replicate 46 initRow
 
-widgetizeNestedList :: [[T.Text]] -> [[Widget ()]]
-widgetizeNestedList = map ( map txt )
+keyMove :: Char -> IO ()
+keyMove a =
+  case a of
+    'j' -> cursorDown 1
+    'k' -> cursorUp 1
+    'h' -> cursorBackward 1
+    'l' -> cursorForward 1
+    _   -> return ()
+
 
 --Take a list of Ints
 twoDify :: [Int] -> [[Int]]
@@ -76,22 +86,18 @@ getIndices :: [(Int, Int)] -> [[(Int, String)]] -> [Int]
 getIndices []             m = []
 getIndices ((x,y) : xys ) m = (fst $ (m !! y) !! x) : getIndices xys m
 
---getIndices pattern1 $ twoByTwoBIP bip39
+--Convert list of bip39 indices to the actual words
+indicesToWords :: [Int] -> [String]
+indicesToWords []         = []
+indicesToWords (idx:idxs) = bip39words !! idx : indicesToWords idxs
 
 
 
---SELECTING AND TOGGLING CELLS FOR INCLUSION
-
---Prompt for 12, 15, 24 word seed phrase
---Check for correct number of words
-
-t :: Table ()
-t =
-    surroundingBorder False $
-    table . widgetizeNestedList . textifyNestedList $ twoDify [0,46..2048]
-
-ui :: Widget ()
-ui = center $ renderTable t
 
 main = do
-    simpleMain ui
+    clearScreen
+    --replicateM_ 46 $ putStrLn initRow
+    setCursorPosition 5 0
+    setTitle "Seed Phrase Gen"
+    c <- getChar
+    keyMove c
