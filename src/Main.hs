@@ -91,6 +91,16 @@ indicesToWords :: [Int] -> [String]
 indicesToWords []         = []
 indicesToWords (idx:idxs) = bip39words !! idx : indicesToWords idxs
 
+--FLOW
+
+--pl <- ask for length of total seed phrase
+--sl <- ask for length of shuffle words
+--ws <- get shuffle words
+--g  <- listShuffleBIP ws
+--display grid g
+--case length of (X,Y) < (pl - sl) repeat displayGrid
+
+
 
 
 
